@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const utilFunction = require('../utils/UtillFunction')
 
+
 exports.postCreateHostel = async(req,res) => {
     try{
         const body = req.body;
@@ -67,7 +68,9 @@ exports.wardenLogin = async(req , res) => {
                     hostelId : findHostel['hostelId'],
                 }
                 const wardenTokenSecret = process.env.wardenTokenSecret;
-                const wardenJwtToken = jwt.sign(payload , wardenTokenSecret );
+                const wardenJwtToken = jwt.sign(payload , wardenTokenSecret , {
+                    expiresIn : '365d'
+                } );
                 return res.status(200).json({
                     success : true,
                     wardenJwtToken : "wardenBearer " + wardenJwtToken,
@@ -199,7 +202,7 @@ exports.hostellerList = async(req ,res) => {
             sendList.push(sendHosteller);
         }
 
-        return res.status(200).json({Mesg : "Hosteller List" , HostellerList : sendList});
+        return res.status(200).json({Mesg : "Hosteller List" , hostellerList : sendList});
     }catch(err){
         console.log('Some Error at server');
         console.log(err);
@@ -215,7 +218,8 @@ exports.sendNotice = async(req, res) => {
             return;
         }  
         const noticePush = {
-            data : noticeData
+            data : noticeData,
+            date : Date.now()
         };
         await Hostel.updateOne({hostelId : req.hostelId} , {$push : {noticeList : noticePush}});
         return res.json({Mesg : "Notice Sent Successfully"}).status(200);
@@ -251,7 +255,7 @@ exports.sendMesg = async(req, res) => {
 
 exports.noticeList = async(req ,res) => {
     try{        
-        var hostelId = req.body.hostelId;
+        var hostelId = req.hostelId;
         var findHostel = await Hostel.findOne({hostelId : hostelId});
         if(!findHostel){
             console.log("Hostel Not available");
@@ -259,7 +263,7 @@ exports.noticeList = async(req ,res) => {
             return;
         }
         var noticeList = findHostel['noticeList'];
-        return res.status(200).json({NoticeList : noticeList});
+        return res.status(200).json({noticelist : noticeList});
     }catch(err){
         console.log(err);
         return res.status(500).json({Mesg : "Some Error at Server"});

@@ -7,6 +7,7 @@ module.exports = (req ,res ,next) => {
         const token = authHeader.split(' ')[1];
         jwt.verify(token, wardenTokenSecret, (err , payload) => {
             if(err){
+                console.log(err)
                 res.json({Mesg : "Some Authentication Error!"}).status(403);
             }else{
                 req.hostelId = payload.hostelId;
