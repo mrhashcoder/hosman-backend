@@ -213,13 +213,19 @@ exports.hostellerList = async(req ,res) => {
 exports.sendNotice = async(req, res) => {
     try{
         var noticeData = req.body.noticeData;
+        var noticeSubject = req.body.subject;
         if(!noticeData){
+            res.json({Mesg : "Invalied Request"}).status(206);
+            return;
+        }
+        if(!noticeSubject){
             res.json({Mesg : "Invalied Request"}).status(206);
             return;
         }  
         const noticePush = {
             data : noticeData,
-            date : Date.now()
+            date : Date.now(),
+            subject : noticeSubject
         };
         await Hostel.updateOne({hostelId : req.hostelId} , {$push : {noticeList : noticePush}});
         return res.json({Mesg : "Notice Sent Successfully"}).status(200);
